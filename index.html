@@ -1,0 +1,2533 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Official Ad Library Research Data</title>
+  <style>
+    :root {
+      font-family: "Avenir Next", "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #18212f;
+      background: #eef2f1;
+      font-size: 16px;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; background: linear-gradient(180deg, #eef2f1 0%, #f7f4ed 58%, #f5f7f8 100%); }
+    main { max-width: 1480px; margin: 0 auto; padding: 28px; }
+    header {
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) minmax(280px, 0.9fr);
+      gap: 26px;
+      align-items: end;
+      padding: 30px;
+      border: 1px solid #d7dedc;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.86);
+      box-shadow: 0 18px 54px rgba(29, 44, 57, 0.08);
+    }
+
+    h1 { margin: 0; max-width: 820px; font-size: clamp(30px, 4vw, 58px); line-height: 1.02; letter-spacing: 0; }
+    h2 { margin: 0; font-size: 20px; letter-spacing: 0; }
+    p { color: #526275; line-height: 1.65; text-wrap: pretty; }
+    header p { max-width: 820px; margin-bottom: 0; }
+    a { color: #186f66; font-weight: 700; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .header-panel {
+      border-left: 1px solid #d7dedc;
+      padding-left: 24px;
+      color: #465769;
+    }
+
+    .header-panel strong {
+      display: block;
+      margin-bottom: 8px;
+      color: #162338;
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin: 18px 0; }
+    .stat { padding: 16px; border: 1px solid #d8e1ed; border-radius: 8px; background: rgba(255, 255, 255, 0.88); }
+    .stat span { display: block; color: #627184; font-size: 13px; }
+    .stat strong { display: block; margin-top: 6px; font-size: 28px; line-height: 1; }
+    .note {
+      margin: 18px 0;
+      padding: 14px 16px;
+      border: 1px solid #ead8a6;
+      border-radius: 8px;
+      background: #fff8e8;
+      color: #60440a;
+      line-height: 1.6;
+    }
+
+    .workbench {
+      display: grid;
+      grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+      margin: 22px 0;
+    }
+
+    .panel {
+      border: 1px solid #d7dedc;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 12px 32px rgba(29, 44, 57, 0.06);
+    }
+
+    .controls { position: sticky; top: 16px; padding: 18px; }
+    .controls h2 { margin-bottom: 14px; }
+    .control-group { display: grid; gap: 8px; margin-top: 14px; }
+    label { color: #5f6d7b; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+    input, select {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid #cbd6dc;
+      border-radius: 8px;
+      background: #fff;
+      color: #172033;
+      font: inherit;
+      font-size: 14px;
+      padding: 9px 11px;
+    }
+
+    .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .chip {
+      border: 1px solid #cbd6dc;
+      border-radius: 999px;
+      background: #fff;
+      color: #27384b;
+      cursor: pointer;
+      font: inherit;
+      font-size: 13px;
+      padding: 8px 11px;
+    }
+
+    .chip.active { border-color: #176d64; background: #e4f0ed; color: #0c534c; font-weight: 700; }
+    .summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px; }
+    .summary-card { padding: 15px; }
+    .summary-card span { display: block; color: #617082; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
+    .summary-card strong { display: block; margin-top: 7px; color: #172033; font-size: 24px; line-height: 1.1; }
+    .summary-card em { display: block; margin-top: 8px; color: #69788a; font-size: 13px; font-style: normal; }
+
+    .cards-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: end;
+      margin: 0 0 14px;
+    }
+
+    .cards-head p { margin: 6px 0 0; }
+    .result-count { color: #526275; font-size: 14px; white-space: nowrap; }
+    .cards-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+
+    .creative-card {
+      position: relative;
+      overflow: hidden;
+      padding: 18px;
+      min-height: 320px;
+    }
+
+    .creative-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto;
+      height: 6px;
+      background: #bcc8c6;
+    }
+
+    .creative-card.priority::before { background: #176d64; }
+    .creative-card.test::before { background: #b7791f; }
+    .creative-card.review::before { background: #9f3f45; }
+    .card-top { display: flex; justify-content: space-between; gap: 12px; align-items: start; margin-top: 5px; }
+    .brand-block { min-width: 0; }
+    .brand { margin: 0; color: #142033; font-size: 23px; line-height: 1.15; overflow-wrap: anywhere; }
+    .advertiser { margin: 6px 0 0; color: #68778a; font-size: 13px; line-height: 1.45; }
+    .score {
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      width: 60px;
+      height: 60px;
+      border: 1px solid #d3dddf;
+      border-radius: 50%;
+      background: #f8fbfa;
+      color: #142033;
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .meta { display: flex; flex-wrap: wrap; gap: 7px; margin: 14px 0; }
+    .pill {
+      border: 1px solid #d5dfe2;
+      border-radius: 999px;
+      background: #fbfcfb;
+      color: #435366;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1;
+      padding: 7px 9px;
+    }
+
+    .pill.country { border-color: #b7c9c6; color: #195b56; }
+    .pill.risk-low { border-color: #b8d7c6; color: #21633b; }
+    .pill.risk-mid { border-color: #e2c58e; color: #74500e; }
+    .pill.risk-high { border-color: #dfb0b2; color: #8a2930; }
+    .angle { margin: 0 0 10px; color: #172033; font-size: 14px; font-weight: 800; }
+    .headline { margin: 0; color: #1f2d3f; font-size: 18px; line-height: 1.35; }
+    .copy { margin: 10px 0 0; color: #536477; font-size: 14px; line-height: 1.62; }
+    .product-copy {
+      margin-top: 14px;
+      padding: 13px;
+      border: 1px solid #d7dedc;
+      border-radius: 8px;
+      background: #fbfcfb;
+    }
+
+    .product-copy span {
+      display: block;
+      color: #617082;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .product-copy strong {
+      display: block;
+      margin-top: 6px;
+      color: #172033;
+      font-size: 15px;
+      line-height: 1.35;
+    }
+
+    .product-copy p {
+      margin: 8px 0 0;
+      color: #4b5e70;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .product-copy em {
+      display: block;
+      margin-top: 8px;
+      color: #7a5a15;
+      font-size: 12px;
+      font-style: normal;
+      line-height: 1.45;
+    }
+
+    .card-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid #e5ebee;
+    }
+
+    .card-actions a,
+    .card-actions button {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      border: 1px solid #cbd6dc;
+      border-radius: 999px;
+      background: #fff;
+      color: #176d64;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 700;
+      font-size: 13px;
+      padding: 7px 11px;
+    }
+
+    .card-actions button.primary-action {
+      border-color: #176d64;
+      background: #176d64;
+      color: #fff;
+    }
+
+    .preview-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: rgba(14, 24, 37, 0.54);
+    }
+
+    .preview-backdrop[hidden] { display: none; }
+    .preview-dialog {
+      width: min(1080px, 100%);
+      max-height: min(900px, calc(100vh - 48px));
+      overflow: auto;
+      border: 1px solid #d7dedc;
+      border-radius: 8px;
+      background: #f8faf9;
+      box-shadow: 0 28px 90px rgba(0, 0, 0, 0.26);
+    }
+
+    .preview-shell {
+      display: grid;
+      grid-template-columns: minmax(320px, 0.95fr) minmax(0, 1.2fr);
+      gap: 0;
+      min-height: 620px;
+    }
+
+    .preview-meta {
+      padding: 24px;
+      border-right: 1px solid #d7dedc;
+      background: #fff;
+    }
+
+    .preview-meta h2 { margin-top: 8px; font-size: 28px; line-height: 1.08; }
+    .preview-meta p { margin: 10px 0 0; }
+    .preview-note {
+      margin-top: 18px;
+      padding: 12px;
+      border: 1px solid #ead8a6;
+      border-radius: 8px;
+      background: #fff8e8;
+      color: #60440a;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .preview-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+    .preview-actions a,
+    .preview-actions button {
+      min-height: 38px;
+      border: 1px solid #cbd6dc;
+      border-radius: 999px;
+      background: #fff;
+      color: #176d64;
+      cursor: pointer;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 800;
+      padding: 9px 13px;
+      text-decoration: none;
+    }
+
+    .preview-actions .solid { border-color: #176d64; background: #176d64; color: #fff; }
+    .ad-stage {
+      display: grid;
+      place-items: center;
+      padding: 28px;
+      background:
+        radial-gradient(circle at 22% 20%, rgba(23, 109, 100, 0.13), transparent 28%),
+        linear-gradient(135deg, #edf2ef, #f8f2e7 62%, #eef4f6);
+    }
+
+    .real-ad-shot {
+      display: block;
+      width: min(520px, 100%);
+      max-height: 760px;
+      object-fit: contain;
+      border: 1px solid #cbd6dc;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 24px 64px rgba(21, 35, 48, 0.18);
+    }
+
+    .missing-shot {
+      width: min(520px, 100%);
+      padding: 24px;
+      border: 1px dashed #b9c6ca;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.78);
+      color: #526275;
+      line-height: 1.6;
+    }
+
+    .raw-title { margin: 28px 0 12px; }
+    .table-wrap { overflow: auto; border: 1px solid #d8e1ed; border-radius: 8px; background: #fff; }
+    table { width: 100%; min-width: 1500px; border-collapse: collapse; }
+    th, td { padding: 12px; border-bottom: 1px solid #e4ebf3; text-align: left; vertical-align: top; font-size: 13px; }
+    th { position: sticky; top: 0; background: #eef5f3; color: #17324d; z-index: 1; }
+
+    @media (max-width: 1100px) {
+      header, .workbench { grid-template-columns: 1fr; }
+      .header-panel { border-left: 0; border-top: 1px solid #d7dedc; padding: 18px 0 0; }
+      .controls { position: static; }
+      .summary-grid, .cards-grid { grid-template-columns: 1fr; }
+      .preview-shell { grid-template-columns: 1fr; }
+      .preview-meta { border-right: 0; border-bottom: 1px solid #d7dedc; }
+    }
+
+    @media (max-width: 800px) {
+      main { padding: 14px; }
+      header { padding: 20px; }
+      .stats { grid-template-columns: 1fr 1fr; }
+      .cards-head { display: block; }
+      .result-count { display: block; margin-top: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <h1>Official Ad Library Research Data</h1>
+        <p>这是一份直接嵌入 HTML 的安哥拉 + 孟加拉现金贷/短贷真实静态图文广告调研数据。数据来自 Meta Ad Library 与 Google Ads Transparency Center 公开广告条目，已排除视频广告，适合提供给 UI 团队参考素材结构。</p>
+      </div>
+      <div class="header-panel">
+        <strong>Card view</strong>
+        <p>把原始表格加工成可扫读的素材卡片：优先看品牌、平台、方向、效果分、风险和验证入口，适合做投放素材拆解与下一轮测试池筛选。</p>
+      </div>
+    </header>
+    <section class="stats">
+      <article class="stat"><span>总记录</span><strong>80</strong></article>
+      <article class="stat"><span>Angola</span><strong>40</strong></article>
+      <article class="stat"><span>Bangladesh</span><strong>40</strong></article>
+      <article class="stat"><span>Meta 系</span><strong>40</strong></article>
+      <article class="stat"><span>Google / YouTube</span><strong>40</strong></article>
+    </section>
+    <div class="note">合规边界：本页只保留 Meta / Google 公开透明度中心条目和截图，已排除视频广告。现金贷广告主需要逐条核验主体资质、利率费用、放款速度表述和当地监管要求。</div>
+    <section class="workbench" aria-label="广告调研卡片看板">
+      <aside class="panel controls">
+        <h2>筛选素材</h2>
+        <div class="control-group">
+          <label for="searchBox">关键词</label>
+          <input id="searchBox" type="search" placeholder="品牌、标题、文案、方向" />
+        </div>
+        <div class="control-group">
+          <label for="countryFilter">国家</label>
+          <select id="countryFilter"><option value="All">全部国家</option></select>
+        </div>
+        <div class="control-group">
+          <label for="platformFilter">平台</label>
+          <select id="platformFilter"><option value="All">全部平台</option></select>
+        </div>
+        <div class="control-group">
+          <label for="angleFilter">方向</label>
+          <select id="angleFilter"><option value="All">全部方向</option></select>
+        </div>
+        <div class="control-group">
+          <label for="levelFilter">复用等级</label>
+          <select id="levelFilter"><option value="All">全部等级</option></select>
+        </div>
+        <div class="control-group">
+          <label for="sortFilter">排序</label>
+          <select id="sortFilter">
+            <option value="score-desc">分数从高到低</option>
+            <option value="risk-asc">风险从低到高</option>
+            <option value="brand-asc">品牌 A-Z</option>
+            <option value="country-asc">国家分组</option>
+          </select>
+        </div>
+        <div class="chip-row" aria-label="快速筛选">
+          <button class="chip active" data-quick="all">全部</button>
+          <button class="chip" data-quick="priority">优先参考</button>
+          <button class="chip" data-quick="lowRisk">低风险</button>
+          <button class="chip" data-quick="topScore">75分以上</button>
+        </div>
+      </aside>
+
+      <section>
+        <div id="summaryGrid" class="summary-grid"></div>
+        <div class="cards-head">
+          <div>
+            <h2>调研素材卡片</h2>
+            <p>每张卡保留原始广告库入口和落地页，方便继续人工核验。</p>
+          </div>
+          <span id="resultCount" class="result-count">正在读取数据</span>
+        </div>
+        <div id="cardsGrid" class="cards-grid"></div>
+      </section>
+    </section>
+    <h2 class="raw-title">原始数据表</h2>
+    <section class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>国家</th>
+            <th>平台</th>
+            <th>真实广告 ID</th>
+            <th>开始投放</th>
+            <th>品牌</th>
+            <th>广告主</th>
+            <th>素材类型</th>
+            <th>语言</th>
+            <th>方向</th>
+            <th>标题</th>
+            <th>文案参考</th>
+            <th>分数</th>
+            <th>风险</th>
+            <th>复用等级</th>
+            <th>广告库入口</th>
+            <th>落地页</th>
+            <th>真实截图</th>
+            <th>备注</th>
+          </tr>
+        </thead>
+        <tbody><tr>
+      <td>Angola</td>
+      <td>Meta</td>
+      <td>2207302946689485</td>
+      <td>2026年1月22日</td>
+      <td>CredoKa-Angola-1226</td>
+      <td>CredoKa-Angola-1226</td>
+      <td>Image app ad</td>
+      <td>Portuguese</td>
+      <td>快速到账</td>
+      <td>Empréstimo sem preocupações até 200.000 Kz.</td>
+      <td>Empréstimo sem preocupações até 200.000 Kz.
+Processo simples, rápido e dinheiro na mão em pouco tempo.Solicite agora!👇👇👇
+PLAY.GOOGLE.COM
+CredoKa</td>
+      <td>76</td>
+      <td>4</td>
+      <td>高风险核验</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=2207302946689485" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=2207302946689485" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/2207302946689485.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：empréstimo online。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Meta</td>
+      <td>2264543317697216</td>
+      <td>2026年6月16日</td>
+      <td>Agilkz IOS</td>
+      <td>Agilkz IOS</td>
+      <td>Image app ad</td>
+      <td>Portuguese</td>
+      <td>高额度</td>
+      <td>Seu emprestimo foi solicitado no valorde 100.000,00 Kz👇👇👇</td>
+      <td>Seu emprestimo foi solicitado no valorde 100.000,00 Kz👇👇👇
+ITUNES.APPLE.COM
+AgilKz</td>
+      <td>62</td>
+      <td>4</td>
+      <td>高风险核验</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=2264543317697216" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=2264543317697216" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/2264543317697216.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：empréstimo online。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Meta</td>
+      <td>2011375373106105</td>
+      <td>2026年6月16日</td>
+      <td>FocoJá-Angola</td>
+      <td>FocoJá-Angola</td>
+      <td>Image app ad</td>
+      <td>Portuguese</td>
+      <td>快速到账</td>
+      <td>FocoJá, uma aplicação de empréstimos pessoais digitais. Empréstimos até 100 000 Kz, prazos</td>
+      <td>FocoJá, uma aplicação de empréstimos pessoais digitais. Empréstimos até 100 000 Kz, prazos de reembolso flexíveis e apoio ao cliente disponível 24 horas por dia para resolver as suas questões
+PLAY.GOOGLE.COM
+FocoJá : Empréstimo Rápido</td>
+      <td>80</td>
+      <td>2</td>
+      <td>优先参考</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=2011375373106105" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=2011375373106105" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/2011375373106105.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：empréstimo online。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Meta</td>
+      <td>3977734932530892</td>
+      <td>2026年6月16日</td>
+      <td>FocoJá-Angola</td>
+      <td>FocoJá-Angola</td>
+      <td>Image app ad</td>
+      <td>Portuguese</td>
+      <td>快速到账</td>
+      <td>FocoJá, uma aplicação de empréstimos pessoais digitais. Empréstimos até 100 000 Kz, prazos</td>
+      <td>FocoJá, uma aplicação de empréstimos pessoais digitais. Empréstimos até 100 000 Kz, prazos de reembolso flexíveis e apoio ao cliente disponível 24 horas por dia para resolver as suas questões
+PLAY.GOOGLE.COM
+FocoJá : Empréstimo Rápido</td>
+      <td>80</td>
+      <td>2</td>
+      <td>优先参考</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=3977734932530892" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=3977734932530892" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/3977734932530892.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：empréstimo online。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Meta</td>
+      <td>1030487252833165</td>
+      <td>2026年6月16日</td>
+      <td>FocoJá-Angola</td>
+      <td>FocoJá-Angola</td>
+      <td>Image app ad</td>
+      <td>Portuguese</td>
+      <td>快速到账</td>
+      <td>FocoJá, uma aplicação de empréstimos pessoais digitais. Empréstimos até 100 000 Kz, prazos</td>
+      <td>FocoJá, uma aplicação de empréstimos pessoais digitais. Empréstimos até 100 000 Kz, prazos de reembolso flexíveis e apoio ao cliente disponível 24 horas por dia para resolver as suas questões
+PLAY.GOOGLE.COM
+FocoJá : Empréstimo Rápido</td>
+      <td>80</td>
+      <td>2</td>
+      <td>优先参考</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1030487252833165" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1030487252833165" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/1030487252833165.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：empréstimo online。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Meta</td>
+      <td>841131242096366</td>
+      <td>2026年6月16日</td>
+      <td>FocoJá-Angola</td>
+      <td>FocoJá-Angola</td>
+      <td>Image app ad</td>
+      <td>Portuguese</td>
+      <td>快速到账</td>
+      <td>FocoJá, uma aplicação de empréstimos pessoais digitais. Empréstimos até 100 000 Kz, prazos</td>
+      <td>FocoJá, uma aplicação de empréstimos pessoais digitais. Empréstimos até 100 000 Kz, prazos de reembolso flexíveis e apoio ao cliente disponível 24 horas por dia para resolver as suas questões
+PLAY.GOOGLE.COM
+FocoJá : Empréstimo Rápido</td>
+      <td>80</td>
+      <td>2</td>
+      <td>优先参考</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=841131242096366" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=841131242096366" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/841131242096366.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：empréstimo online。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Meta</td>
+      <td>27151235007863142</td>
+      <td>2026年6月16日</td>
+      <td>FocoJá-Angola</td>
+      <td>FocoJá-Angola</td>
+      <td>Image app ad</td>
+      <td>Portuguese</td>
+      <td>快速到账</td>
+      <td>FocoJá, uma aplicação de empréstimos pessoais digitais. Empréstimos até 100 000 Kz, prazos</td>
+      <td>FocoJá, uma aplicação de empréstimos pessoais digitais. Empréstimos até 100 000 Kz, prazos de reembolso flexíveis e apoio ao cliente disponível 24 horas por dia para resolver as suas questões
+PLAY.GOOGLE.COM
+FocoJá : Empréstimo Rápido</td>
+      <td>80</td>
+      <td>2</td>
+      <td>优先参考</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=27151235007863142" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=27151235007863142" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/27151235007863142.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：empréstimo online。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Meta</td>
+      <td>1009459904791860</td>
+      <td>2026年6月20日</td>
+      <td>Marco Singleton</td>
+      <td>Marco Singleton</td>
+      <td>Image app ad</td>
+      <td>Portuguese</td>
+      <td>快速到账</td>
+      <td>Empréstimo rápido. Sem fiador. Aprovação ainda hoje. Clique e receba.</td>
+      <td>Empréstimo rápido. Sem fiador. Aprovação ainda hoje. Clique e receba.
+Precisa de dinheiro agora? Solicite agora, receça hoje mesmo. Sem sair de casa.</td>
+      <td>76</td>
+      <td>4</td>
+      <td>高风险核验</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1009459904791860" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1009459904791860" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/1009459904791860.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：crédito rápido。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Meta</td>
+      <td>946859728054655</td>
+      <td>2026年4月29日</td>
+      <td>Elite Growth Collective</td>
+      <td>Elite Growth Collective</td>
+      <td>Image</td>
+      <td>Portuguese</td>
+      <td>App教程</td>
+      <td>Empréstimos pessoais para quem tem crédito ruim podem ser aprovados sem exigir pagamento a</td>
+      <td>Empréstimos pessoais para quem tem crédito ruim podem ser aprovados sem exigir pagamento antecipado segundo algumas modalidades.
+THESAVVYEXPLORERS.COM
+Guia sobre empréstimos pessoais com crédito ruim
+Muitas pessoas enfrentam dificuldades financeiras e se perguntam como conseguir um empréstimo pessoal com crédito ruim. Este guia informativo explora opções disponíveis, ajudando a entender como obter um empréstimo sem a necessidade de pagamento inicial.</td>
+      <td>77</td>
+      <td>2</td>
+      <td>可测试</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=946859728054655" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=946859728054655" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/946859728054655.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：crédito rápido。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Meta</td>
+      <td>1966357567376909</td>
+      <td>2026年6月26日</td>
+      <td>Kathy Barker</td>
+      <td>Kathy Barker</td>
+      <td>Image app ad</td>
+      <td>Portuguese</td>
+      <td>高额度</td>
+      <td>Até Kz 300.000 com condições claras</td>
+      <td>Até Kz 300.000 com condições claras
+300.000 Kz</td>
+      <td>66</td>
+      <td>2</td>
+      <td>可测试</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1966357567376909" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1966357567376909" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/1966357567376909.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：crédito rápido。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Meta</td>
+      <td>1344150630968377</td>
+      <td>2026年6月17日</td>
+      <td>Marco Singleton</td>
+      <td>Marco Singleton</td>
+      <td>Image app ad</td>
+      <td>Portuguese</td>
+      <td>快速到账</td>
+      <td>Dinheiro na conta hoje. Aprovação rápida.</td>
+      <td>Dinheiro na conta hoje. Aprovação rápida.
+Crédito rápido, sem burocracia</td>
+      <td>75</td>
+      <td>2</td>
+      <td>优先参考</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1344150630968377" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1344150630968377" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/1344150630968377.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：crédito rápido。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Meta</td>
+      <td>2081507945781396</td>
+      <td>2026年6月24日</td>
+      <td>Kwikola-app de empréstimo</td>
+      <td>Kwikola-app de empréstimo</td>
+      <td>Image app ad</td>
+      <td>Portuguese</td>
+      <td>高额度</td>
+      <td>Limite maior com prazo confortável</td>
+      <td>Limite maior com prazo confortável
+Peça pelo app</td>
+      <td>66</td>
+      <td>2</td>
+      <td>可测试</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=2081507945781396" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=2081507945781396" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/2081507945781396.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：crédito rápido。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Meta</td>
+      <td>959651917033073</td>
+      <td>2026年4月24日</td>
+      <td>FocoJá-Angola</td>
+      <td>FocoJá-Angola</td>
+      <td>Image app ad</td>
+      <td>Portuguese</td>
+      <td>快速到账</td>
+      <td>Empréstimos de 10.000 a 80.000 Kz</td>
+      <td>Empréstimos de 10.000 a 80.000 Kz
+Prazos flexíveis até 91 dias
+Taxa de juros anual (TAEG): até 24%
+PLAY.GOOGLE.COM
+FocoJá - Dinheiro Rápido</td>
+      <td>80</td>
+      <td>3</td>
+      <td>优先参考</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=959651917033073" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=959651917033073" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/959651917033073.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：FocoJá Angola。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Meta</td>
+      <td>959438093613911</td>
+      <td>2026年4月24日</td>
+      <td>FocoJá-Angola</td>
+      <td>FocoJá-Angola</td>
+      <td>Image app ad</td>
+      <td>Portuguese</td>
+      <td>快速到账</td>
+      <td>Empréstimos de 10.000 a 80.000 Kz</td>
+      <td>Empréstimos de 10.000 a 80.000 Kz
+Prazos flexíveis até 91 dias
+Taxa de juros anual (TAEG): até 24%
+PLAY.GOOGLE.COM
+FocoJá - Dinheiro Rápido</td>
+      <td>80</td>
+      <td>3</td>
+      <td>优先参考</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=959438093613911" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=959438093613911" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/959438093613911.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：FocoJá Angola。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Meta</td>
+      <td>953306947419450</td>
+      <td>2026年4月24日</td>
+      <td>FocoJá-Angola</td>
+      <td>FocoJá-Angola</td>
+      <td>Image app ad</td>
+      <td>Portuguese</td>
+      <td>快速到账</td>
+      <td>Empréstimos de 10.000 a 80.000 Kz</td>
+      <td>Empréstimos de 10.000 a 80.000 Kz
+Prazos flexíveis até 91 dias
+Taxa de juros anual (TAEG): até 24%
+PLAY.GOOGLE.COM
+FocoJá - Dinheiro Rápido</td>
+      <td>80</td>
+      <td>3</td>
+      <td>优先参考</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=953306947419450" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=953306947419450" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/953306947419450.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：FocoJá Angola。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Meta</td>
+      <td>1020258023679422</td>
+      <td>2026年6月25日</td>
+      <td>VitalKumbica</td>
+      <td>VitalKumbica</td>
+      <td>Image app ad</td>
+      <td>Portuguese</td>
+      <td>快速到账</td>
+      <td>𝗡𝗘𝗠 𝗘𝗨 𝗔𝗖𝗥𝗘𝗗𝗜𝗧𝗢: 𝗢 𝗠𝗘𝗨 𝗔𝗡𝗧𝗘𝗦 𝗘 𝗗𝗘𝗣𝗢𝗜𝗦 𝗤𝗨𝗘 𝗠𝗘 𝗗𝗘𝗜𝗫𝗢�</td>
+      <td>𝗡𝗘𝗠 𝗘𝗨 𝗔𝗖𝗥𝗘𝗗𝗜𝗧𝗢: 𝗢 𝗠𝗘𝗨 𝗔𝗡𝗧𝗘𝗦 𝗘 𝗗𝗘𝗣𝗢𝗜𝗦 𝗤𝗨𝗘 𝗠𝗘 𝗗𝗘𝗜𝗫𝗢𝗨 𝗦𝗘𝗠 𝗣𝗔𝗟𝗔𝗩𝗥𝗔𝗦! 😱💃🏾
+Pessoal, nem eu acredito que emagreci tanto! Além de perder peso, estou a ganhar forma — juro! 😂🙌🏾 Nunca tive tanta definição; agora, além dos braços, pernas e barriga mais marcados, descobri que afinal posso ter até curvas! 🫣
+Vejam a comparação na imagem. A primeira foto foi em Março deste ano. A família dizia que eu estava a engordar, mas eu achava que era impressão deles... embora sentisse que tinha subido um pouquinho. 🫣😂
+A verdade é que eu estava muito cansada, com dores articulares e não dormia bem. Quando aceitei tirar aquela foto e vi o resultado, fiquei chocada! Corri para a farmácia e: 𝙥𝙖𝙢! 97 kg. Eu, que sempre me vi nos meus queridos 68 kg, estava diante de uma realidade que arrasa qualquer autoe</td>
+      <td>80</td>
+      <td>3</td>
+      <td>优先参考</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1020258023679422" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1020258023679422" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/1020258023679422.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：FocoJá Angola。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Meta</td>
+      <td>955533017529658</td>
+      <td>2026年6月29日</td>
+      <td>LISPA - Laboratório de Inovação do Sistema de Pagamentos de Angola</td>
+      <td>LISPA - Laboratório de Inovação do Sistema de Pagamentos de Angola</td>
+      <td>Image app ad</td>
+      <td>Portuguese</td>
+      <td>快速到账</td>
+      <td>Muitos jovens em Luanda têm grandes ideias, mas perdem-se por falta de orientação, ambient</td>
+      <td>Muitos jovens em Luanda têm grandes ideias, mas perdem-se por falta de orientação, ambiente certo e foco estratégico. O LISPA JumpStart terceira edição veio para mudar isso.
+​Se tens uma ideia de negócio ou uma startup em fase inicial, esta é a tua oportunidade de receber:
+Aprendizagem 100% prática com profissionais do mercado.
+Direção clara para tirar o teu projeto do papel.
+A oportunidade de disputar o prémio de 1.000.000 Kz para a melhor ideia (250.000 em cash, 750 em serviço)
+​As vagas são limitadas e as candidaturas para a 3ª edição encerram em breve.
+​Não deixes o teu projeto parado.
+Clica no botão abaixo ou no link e faz a tua candidatura agora:
+https://forms.gle/EeQxmaAoTa4aALQy5
+HTTPS://FORMS.GLE/EEQXMAAOTA4AALQY5
+Candidaturas LISPA JumpStart</td>
+      <td>76</td>
+      <td>4</td>
+      <td>高风险核验</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=955533017529658" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=955533017529658" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/955533017529658.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：FocoJá Angola。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Meta</td>
+      <td>989617483706175</td>
+      <td>2026年6月22日</td>
+      <td>Centro de formação profissional SJEL</td>
+      <td>Centro de formação profissional SJEL</td>
+      <td>Image app ad</td>
+      <td>Portuguese</td>
+      <td>高额度</td>
+      <td>🔥 TORNE-SE UM SOLDADOR INDUSTRIAL PROFISSIONAL E ABRA PORTAS PARA GRANDES OPORTUNIDADES! </td>
+      <td>🔥 TORNE-SE UM SOLDADOR INDUSTRIAL PROFISSIONAL E ABRA PORTAS PARA GRANDES OPORTUNIDADES! 🔥
+O mercado angolano precisa cada vez mais de profissionais qualificados para atuar nas áreas de construção civil, petróleo e gás, indústria metalomecânica, mineração e manutenção industrial.
+Se procura uma profissão prática, valorizada e com elevada procura no mercado, o Curso de Soldadura Industrial da SJEL é a oportunidade ideal para si!
+✅ Formação prática em ambiente industrial
+✅ Formadores experientes e qualificados
+✅ Equipamentos modernos
+✅ Certificado reconhecido
+✅ Pagamento em prestações
+📚 Módulos Disponíveis:
+🔹 Eletrodo Revestido – 100.000 Kz
+🔹 MIG MAG – 180.000 Kz</td>
+      <td>67</td>
+      <td>4</td>
+      <td>高风险核验</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=989617483706175" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=989617483706175" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/989617483706175.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：FocoJá Angola。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Meta</td>
+      <td>1498006318499056</td>
+      <td>2026年4月24日</td>
+      <td>FocoJá-Angola</td>
+      <td>FocoJá-Angola</td>
+      <td>Image app ad</td>
+      <td>Portuguese</td>
+      <td>快速到账</td>
+      <td>Empréstimos de 10.000 a 80.000 Kz</td>
+      <td>Empréstimos de 10.000 a 80.000 Kz
+Prazos flexíveis até 91 dias
+Taxa de juros anual (TAEG): até 24%
+PLAY.GOOGLE.COM
+FocoJá - Dinheiro Rápido</td>
+      <td>80</td>
+      <td>3</td>
+      <td>优先参考</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1498006318499056" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1498006318499056" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/1498006318499056.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：FocoJá Angola。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Meta</td>
+      <td>903556672131173</td>
+      <td>2026年1月22日</td>
+      <td>CredoKa-Angola-1226</td>
+      <td>CredoKa-Angola-1226</td>
+      <td>Image app ad</td>
+      <td>Portuguese</td>
+      <td>快速到账</td>
+      <td>Empréstimo sem preocupações até 200.000 Kz.</td>
+      <td>Empréstimo sem preocupações até 200.000 Kz.
+Processo simples, rápido e dinheiro na mão em pouco tempo.Solicite agora!👇👇👇
+PLAY.GOOGLE.COM
+CredoKa</td>
+      <td>76</td>
+      <td>4</td>
+      <td>高风险核验</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=903556672131173" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=903556672131173" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/903556672131173.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：CredoKa Angola。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Meta</td>
+      <td>1735172360829048</td>
+      <td>2026年6月7日</td>
+      <td>Fincash</td>
+      <td>Fincash</td>
+      <td>Image app ad</td>
+      <td>English</td>
+      <td>快速到账</td>
+      <td>✅24-hour loan approval ✅Easy signup process, only 3 steps ✅Getting a cash loan in Tk. ✅Hig</td>
+      <td>✅24-hour loan approval ✅Easy signup process, only 3 steps ✅Getting a cash loan in Tk. ✅High loan amount up to 100.000 Tk.✅Convenient online application</td>
+      <td>76</td>
+      <td>4</td>
+      <td>高风险核验</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1735172360829048" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1735172360829048" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/1735172360829048.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：bKash Loan。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Meta</td>
+      <td>1946925926008997</td>
+      <td>2026年6月12日</td>
+      <td>Asha Loan</td>
+      <td>Asha Loan</td>
+      <td>Image app ad</td>
+      <td>Bengali</td>
+      <td>快速到账</td>
+      <td>সহজ ও সুবিধাজনক প্রক্রিয়ায় মোবাইল দিয়ে অনলাইনে আবেদন করুন</td>
+      <td>সহজ ও সুবিধাজনক প্রক্রিয়ায় মোবাইল দিয়ে অনলাইনে আবেদন করুন
+PLAY.GOOGLE.COM
+দ্রুত আবেদন, সহজ ব্যবহার</td>
+      <td>75</td>
+      <td>2</td>
+      <td>优先参考</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1946925926008997" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1946925926008997" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/1946925926008997.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：bKash Loan。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Meta</td>
+      <td>1556024136157619</td>
+      <td>2026年6月19日</td>
+      <td>BD Loan</td>
+      <td>BD Loan</td>
+      <td>Image app ad</td>
+      <td>Bengali</td>
+      <td>快速到账</td>
+      <td>জরুরী ক্যাশ লোন - সরাসরি আপনার মোবাইলে! 📱✨</td>
+      <td>জরুরী ক্যাশ লোন - সরাসরি আপনার মোবাইলে! 📱✨
+• সহজ ধাপ: ফর্ম পূরণ করুন -&gt; দ্রুত অনুমোদন -&gt; ইনস্ট্যান্ট বিকাশ/নগদ ট্রান্সফার।
+• সুবিধা: নমনীয় লিমিট এবং বাজারের সবচেয়ে কম সুদের হার!
+নিরাপদ এবং দ্রুততম লোনের জন্য নিচে দেওয়া লিংকে ক্লিক করুন। 👇</td>
+      <td>80</td>
+      <td>3</td>
+      <td>优先参考</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1556024136157619" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1556024136157619" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/1556024136157619.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：bKash Loan。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Meta</td>
+      <td>970403239136814</td>
+      <td>2026年5月24日</td>
+      <td>লোন সার্ভিস</td>
+      <td>লোন সার্ভিস</td>
+      <td>Image app ad</td>
+      <td>Bengali</td>
+      <td>App教程</td>
+      <td>লোন বিষয়ে বিস্তারিত জানতে ইনবক্স করুন</td>
+      <td>লোন বিষয়ে বিস্তারিত জানতে ইনবক্স করুন
+API.WHATSAPP.COM
+লোন সার্ভিস
+发送 WhatsApp 消息</td>
+      <td>66</td>
+      <td>2</td>
+      <td>可测试</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=970403239136814" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=970403239136814" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/970403239136814.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：bKash Loan。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Meta</td>
+      <td>2011513716113962</td>
+      <td>2026年6月29日</td>
+      <td>Fincash</td>
+      <td>Fincash</td>
+      <td>Image app ad</td>
+      <td>English</td>
+      <td>快速到账</td>
+      <td>Instant Cash Advance Loan App | Tk. 50.000 Loan For Urgent Needs</td>
+      <td>Instant Cash Advance Loan App | Tk. 50.000 Loan For Urgent Needs
+PLAY.GOOGLE.COM
+FinCash</td>
+      <td>71</td>
+      <td>4</td>
+      <td>高风险核验</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=2011513716113962" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=2011513716113962" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/2011513716113962.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：bKash Loan。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Meta</td>
+      <td>1011407641490736</td>
+      <td>2026年6月27日</td>
+      <td>Credit Card &amp; Banking Information</td>
+      <td>Credit Card &amp; Banking Information</td>
+      <td>Image app ad</td>
+      <td>Bengali</td>
+      <td>App教程</td>
+      <td>🎉 UCB ক্রেডিট কার্ড অফার! 🎉</td>
+      <td>🎉 UCB ক্রেডিট কার্ড অফার! 🎉
+💳 🌟 স্মার্ট লাইফের সঙ্গী – একটি ক্রেডিট  কার্ড!
+👨‍💼আপনার ব্যস্ত জীবনে এক কার্ডেই সব সমাধান! 🏦
+🎉 **এখনই আবেদন করুন – ট্যাক্স রিটার্ন ছাড়াই!**
+💳 #ক্রেডিট_কার্ডে_থাকছে#
+✨ 💠 ১ম বছর একদম ফ্রি
+✨ 🔄 ১৮ ট্রানজ্যাকশনে পরের বছরগুলো ফ্রি
+✨ 👨‍👩‍👧 ১ম সাপ্লিমেন্টারি কার্ড ফ্রি
+✨ 💰 ০% EMI – সর্বোচ্চ ২৪ মাস
+✨ 🎁 ১০% – ৫০% ক্যাশব্যাক
+✨ ⏳ ৪৫ দিনে ইন্টারেস্ট ছাড়া বিল পেমেন্ট সুবিধা</td>
+      <td>71</td>
+      <td>2</td>
+      <td>可测试</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1011407641490736" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1011407641490736" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/1011407641490736.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：bKash Loan。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Meta</td>
+      <td>978503661904479</td>
+      <td>2026年7月1日</td>
+      <td>Asha Loan</td>
+      <td>Asha Loan</td>
+      <td>Image app ad</td>
+      <td>Bengali</td>
+      <td>快速到账</td>
+      <td>সহজ অনলাইন প্রক্রিয়ায় কয়েক মিনিটেই আবেদন সম্পন্ন করুন</td>
+      <td>সহজ অনলাইন প্রক্রিয়ায় কয়েক মিনিটেই আবেদন সম্পন্ন করুন
+PLAY.GOOGLE.COM
+দ্রুত যাচাই, সহজ প্রক্রিয়া</td>
+      <td>75</td>
+      <td>2</td>
+      <td>优先参考</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=978503661904479" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=978503661904479" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/978503661904479.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：bKash Loan。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Meta</td>
+      <td>2533011063786227</td>
+      <td>2026年6月29日</td>
+      <td>Dost Loan</td>
+      <td>Dost Loan</td>
+      <td>Image app ad</td>
+      <td>Bengali</td>
+      <td>快速到账</td>
+      <td>মোবাইল দিয়ে দ্রুত আবেদন জমা দিন</td>
+      <td>মোবাইল দিয়ে দ্রুত আবেদন জমা দিন
+PLAY.GOOGLE.COM
+দ্রুত যাচাই, সহজ প্রক্রিয়া</td>
+      <td>75</td>
+      <td>2</td>
+      <td>优先参考</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=2533011063786227" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=2533011063786227" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/2533011063786227.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：bKash Loan。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Meta</td>
+      <td>1963767197520605</td>
+      <td>2026年7月1日</td>
+      <td>Asha Loan</td>
+      <td>Asha Loan</td>
+      <td>Image app ad</td>
+      <td>Bengali</td>
+      <td>快速到账</td>
+      <td>সহজ অনলাইন প্রক্রিয়ায় কয়েক মিনিটেই আবেদন সম্পন্ন করুন</td>
+      <td>সহজ অনলাইন প্রক্রিয়ায় কয়েক মিনিটেই আবেদন সম্পন্ন করুন
+PLAY.GOOGLE.COM
+দ্রুত যাচাই, সহজ প্রক্রিয়া</td>
+      <td>75</td>
+      <td>2</td>
+      <td>优先参考</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1963767197520605" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1963767197520605" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/1963767197520605.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：bKash Loan。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Meta</td>
+      <td>1969485730398735</td>
+      <td>2026年7月1日</td>
+      <td>Asha Loan</td>
+      <td>Asha Loan</td>
+      <td>Image app ad</td>
+      <td>Bengali</td>
+      <td>快速到账</td>
+      <td>সহজ অনলাইন প্রক্রিয়ায় কয়েক মিনিটেই আবেদন সম্পন্ন করুন</td>
+      <td>সহজ অনলাইন প্রক্রিয়ায় কয়েক মিনিটেই আবেদন সম্পন্ন করুন
+PLAY.GOOGLE.COM
+দ্রুত যাচাই, সহজ প্রক্রিয়া</td>
+      <td>75</td>
+      <td>2</td>
+      <td>优先参考</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1969485730398735" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1969485730398735" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/1969485730398735.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：bKash Loan。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Meta</td>
+      <td>1340694790801881</td>
+      <td>2026年7月2日</td>
+      <td>FinDrip</td>
+      <td>FinDrip</td>
+      <td>Image app ad</td>
+      <td>English</td>
+      <td>App教程</td>
+      <td>TakaCashLoan - Easy and safe</td>
+      <td>PLAY.GOOGLE.COM
+TakaCashLoan - Easy and safe</td>
+      <td>66</td>
+      <td>2</td>
+      <td>可测试</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1340694790801881" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1340694790801881" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/1340694790801881.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：bKash Loan。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Meta</td>
+      <td>1743084000380361</td>
+      <td>2026年6月27日</td>
+      <td>BK FAST LOAN</td>
+      <td>BK FAST LOAN</td>
+      <td>Image</td>
+      <td>Bengali</td>
+      <td>快速到账</td>
+      <td>লোন বিষয়ে বিস্তারিত জানতে ইনবক্স করুন 📥✅</td>
+      <td>লোন বিষয়ে বিস্তারিত জানতে ইনবক্স করুন 📥✅
+BK FAST LOAN
+Financial Service
+发消息</td>
+      <td>81</td>
+      <td>2</td>
+      <td>优先参考</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1743084000380361" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1743084000380361" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/1743084000380361.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：bKash Loan。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Meta</td>
+      <td>1881457189217982</td>
+      <td>2026年7月1日</td>
+      <td>Asha Loan</td>
+      <td>Asha Loan</td>
+      <td>Image app ad</td>
+      <td>Bengali</td>
+      <td>快速到账</td>
+      <td>সহজ অনলাইন প্রক্রিয়ায় কয়েক মিনিটেই আবেদন সম্পন্ন করুন</td>
+      <td>সহজ অনলাইন প্রক্রিয়ায় কয়েক মিনিটেই আবেদন সম্পন্ন করুন
+PLAY.GOOGLE.COM
+দ্রুত যাচাই, সহজ প্রক্রিয়া</td>
+      <td>75</td>
+      <td>2</td>
+      <td>优先参考</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1881457189217982" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1881457189217982" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/1881457189217982.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：bKash Loan。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Meta</td>
+      <td>1734514871126171</td>
+      <td>2026年6月29日</td>
+      <td>Dost Loan</td>
+      <td>Dost Loan</td>
+      <td>Image app ad</td>
+      <td>Bengali</td>
+      <td>快速到账</td>
+      <td>মোবাইল দিয়ে দ্রুত আবেদন জমা দিন</td>
+      <td>মোবাইল দিয়ে দ্রুত আবেদন জমা দিন
+PLAY.GOOGLE.COM
+দ্রুত যাচাই, সহজ প্রক্রিয়া</td>
+      <td>75</td>
+      <td>2</td>
+      <td>优先参考</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1734514871126171" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1734514871126171" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/1734514871126171.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：bKash Loan。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Meta</td>
+      <td>886140027264013</td>
+      <td>2026年6月29日</td>
+      <td>Dost Loan</td>
+      <td>Dost Loan</td>
+      <td>Image app ad</td>
+      <td>Bengali</td>
+      <td>快速到账</td>
+      <td>মোবাইল দিয়ে দ্রুত আবেদন জমা দিন</td>
+      <td>মোবাইল দিয়ে দ্রুত আবেদন জমা দিন
+PLAY.GOOGLE.COM
+দ্রুত যাচাই, সহজ প্রক্রিয়া</td>
+      <td>75</td>
+      <td>2</td>
+      <td>优先参考</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=886140027264013" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=886140027264013" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/886140027264013.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：bKash Loan。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Meta</td>
+      <td>2014224899481941</td>
+      <td>2026年7月2日</td>
+      <td>Johnson Gottfried Jammal</td>
+      <td>Johnson Gottfried Jammal</td>
+      <td>Image app ad</td>
+      <td>English</td>
+      <td>快速到账</td>
+      <td>🚨 Need urgent cash for emergencies, medical bills, or education? Don’t stress!</td>
+      <td>🚨 Need urgent cash for emergencies, medical bills, or education? Don’t stress!
+With Asha Loan, getting financial help is simpler than ever.
+⚡ Super-Fast Approval: Get your results within minutes!
+📱 100% Online: No complex paperwork, no long queues.
+💰 Flexible Amounts: Borrow from Tk 1,000 up to Tk 60,000 tailored to your needs.
+Your reliable loan partner is just a tap away. Download Asha Loan today and get the funds you need instantly! 👇
+PLAY.GOOGLE.COM
+💸 Need Cash Fast? Get Approved in Minutes!</td>
+      <td>76</td>
+      <td>4</td>
+      <td>高风险核验</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=2014224899481941" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=2014224899481941" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/2014224899481941.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：bKash Loan。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Meta</td>
+      <td>1791912828442126</td>
+      <td>2026年6月29日</td>
+      <td>Dost Loan</td>
+      <td>Dost Loan</td>
+      <td>Image app ad</td>
+      <td>Bengali</td>
+      <td>快速到账</td>
+      <td>মোবাইল দিয়ে দ্রুত আবেদন জমা দিন</td>
+      <td>মোবাইল দিয়ে দ্রুত আবেদন জমা দিন
+PLAY.GOOGLE.COM
+দ্রুত যাচাই, সহজ প্রক্রিয়া</td>
+      <td>75</td>
+      <td>2</td>
+      <td>优先参考</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1791912828442126" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1791912828442126" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/1791912828442126.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：bKash Loan。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Meta</td>
+      <td>1598559661651644</td>
+      <td>2026年6月29日</td>
+      <td>Dost Loan</td>
+      <td>Dost Loan</td>
+      <td>Image app ad</td>
+      <td>Bengali</td>
+      <td>低利率</td>
+      <td>বার্ষিক সুদের হার সর্বনিম্ন ১৩%, কোনো গোপন খরচ নেই। নিশ্চিন্তে ঋণ নিন।</td>
+      <td>বার্ষিক সুদের হার সর্বনিম্ন ১৩%, কোনো গোপন খরচ নেই। নিশ্চিন্তে ঋণ নিন।
+PLAY.GOOGLE.COM
+অনলাইনে টাকা ধার নিন</td>
+      <td>66</td>
+      <td>3</td>
+      <td>可测试</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1598559661651644" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1598559661651644" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/1598559661651644.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：bKash Loan。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Meta</td>
+      <td>888149024346493</td>
+      <td>2026年7月2日</td>
+      <td>Johnson Gottfried Jammal</td>
+      <td>Johnson Gottfried Jammal</td>
+      <td>Image app ad</td>
+      <td>English</td>
+      <td>快速到账</td>
+      <td>🚨 Need urgent cash for emergencies, medical bills, or education? Don’t stress!</td>
+      <td>🚨 Need urgent cash for emergencies, medical bills, or education? Don’t stress!
+With Asha Loan, getting financial help is simpler than ever.
+⚡ Super-Fast Approval: Get your results within minutes!
+📱 100% Online: No complex paperwork, no long queues.
+💰 Flexible Amounts: Borrow from Tk 1,000 up to Tk 60,000 tailored to your needs.
+Your reliable loan partner is just a tap away. Download Asha Loan today and get the funds you need instantly! 👇</td>
+      <td>76</td>
+      <td>4</td>
+      <td>高风险核验</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=888149024346493" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=888149024346493" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/888149024346493.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：bKash Loan。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Meta</td>
+      <td>1027487793200427</td>
+      <td>2026年7月2日</td>
+      <td>Johnson Gottfried Jammal</td>
+      <td>Johnson Gottfried Jammal</td>
+      <td>Image app ad</td>
+      <td>English</td>
+      <td>快速到账</td>
+      <td>🚨 Need urgent cash for emergencies, medical bills, or education? Don’t stress!</td>
+      <td>🚨 Need urgent cash for emergencies, medical bills, or education? Don’t stress!
+With Asha Loan, getting financial help is simpler than ever.
+⚡ Super-Fast Approval: Get your results within minutes!
+📱 100% Online: No complex paperwork, no long queues.
+💰 Flexible Amounts: Borrow from Tk 1,000 up to Tk 60,000 tailored to your needs.
+Your reliable loan partner is just a tap away. Download Asha Loan today and get the funds you need instantly! 👇
+PLAY.GOOGLE.COM
+💸 Need Cash Fast? Get Approved in Minutes!</td>
+      <td>76</td>
+      <td>4</td>
+      <td>高风险核验</td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1027487793200427" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://www.facebook.com/ads/library/?id=1027487793200427" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/1027487793200427.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Meta 广告资料库静态图文条目；采集关键词：bKash Loan。已排除带视频时间轴的素材。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Google</td>
+      <td>CR03294057397101789185</td>
+      <td>Google 未公开</td>
+      <td>bKash Limited</td>
+      <td>bKash Limited</td>
+      <td>Image ad</td>
+      <td>Bengali</td>
+      <td>快速到账</td>
+      <td>bKash Limited Google static creative</td>
+      <td>Google Ads Transparency Center static creative for bKash Limited. Non-video preview collected from public transparency page.</td>
+      <td>82</td>
+      <td>2</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR03294057397101789185?region=BD" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR03294057397101789185?region=BD" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR03294057397101789185.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：bKash Limited Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Google</td>
+      <td>CR02785291376697278465</td>
+      <td>Google 未公开</td>
+      <td>bKash Limited</td>
+      <td>bKash Limited</td>
+      <td>Image wide ad</td>
+      <td>Bengali</td>
+      <td>快速到账</td>
+      <td>bKash Limited Google static creative</td>
+      <td>Google Ads Transparency Center static creative for bKash Limited. Non-video preview collected from public transparency page.</td>
+      <td>83</td>
+      <td>2</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR02785291376697278465?region=BD" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR02785291376697278465?region=BD" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR02785291376697278465.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：bKash Limited Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Google</td>
+      <td>CR10504214847405686785</td>
+      <td>Google 未公开</td>
+      <td>bKash Limited</td>
+      <td>bKash Limited</td>
+      <td>Image wide ad</td>
+      <td>Bengali</td>
+      <td>快速到账</td>
+      <td>bKash Limited Google static creative</td>
+      <td>Google Ads Transparency Center static creative for bKash Limited. Non-video preview collected from public transparency page.</td>
+      <td>84</td>
+      <td>2</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR10504214847405686785?region=BD" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR10504214847405686785?region=BD" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR10504214847405686785.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：bKash Limited Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Google</td>
+      <td>CR12695986282606624769</td>
+      <td>Google 未公开</td>
+      <td>bKash Limited</td>
+      <td>bKash Limited</td>
+      <td>Image wide ad</td>
+      <td>Bengali</td>
+      <td>快速到账</td>
+      <td>bKash Limited Google static creative</td>
+      <td>Google Ads Transparency Center static creative for bKash Limited. Non-video preview collected from public transparency page.</td>
+      <td>85</td>
+      <td>2</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR12695986282606624769?region=BD" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR12695986282606624769?region=BD" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR12695986282606624769.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：bKash Limited Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Google</td>
+      <td>CR13293880648293941249</td>
+      <td>Google 未公开</td>
+      <td>bKash Limited</td>
+      <td>bKash Limited</td>
+      <td>Image wide ad</td>
+      <td>Bengali</td>
+      <td>快速到账</td>
+      <td>bKash Limited Google static creative</td>
+      <td>Google Ads Transparency Center static creative for bKash Limited. Non-video preview collected from public transparency page.</td>
+      <td>86</td>
+      <td>2</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR13293880648293941249?region=BD" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR13293880648293941249?region=BD" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR13293880648293941249.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：bKash Limited Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Google</td>
+      <td>CR13253451313682841601</td>
+      <td>Google 未公开</td>
+      <td>bKash Limited</td>
+      <td>bKash Limited</td>
+      <td>Image wide ad</td>
+      <td>Bengali</td>
+      <td>快速到账</td>
+      <td>bKash Limited Google static creative</td>
+      <td>Google Ads Transparency Center static creative for bKash Limited. Non-video preview collected from public transparency page.</td>
+      <td>82</td>
+      <td>2</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR13253451313682841601?region=BD" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR13253451313682841601?region=BD" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR13253451313682841601.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：bKash Limited Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Google</td>
+      <td>CR07474453382464274433</td>
+      <td>Google 未公开</td>
+      <td>bKash Limited</td>
+      <td>bKash Limited</td>
+      <td>Image wide ad</td>
+      <td>Bengali</td>
+      <td>快速到账</td>
+      <td>bKash Limited Google static creative</td>
+      <td>Google Ads Transparency Center static creative for bKash Limited. Non-video preview collected from public transparency page.</td>
+      <td>83</td>
+      <td>2</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR07474453382464274433?region=BD" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR07474453382464274433?region=BD" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR07474453382464274433.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：bKash Limited Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Google</td>
+      <td>CR14248813360375136257</td>
+      <td>Google 未公开</td>
+      <td>bKash Limited</td>
+      <td>bKash Limited</td>
+      <td>Image wide ad</td>
+      <td>Bengali</td>
+      <td>快速到账</td>
+      <td>bKash Limited Google static creative</td>
+      <td>Google Ads Transparency Center static creative for bKash Limited. Non-video preview collected from public transparency page.</td>
+      <td>84</td>
+      <td>2</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR14248813360375136257?region=BD" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR14248813360375136257?region=BD" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR14248813360375136257.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：bKash Limited Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Google</td>
+      <td>CR14055693007768780801</td>
+      <td>Google 未公开</td>
+      <td>bKash Limited</td>
+      <td>bKash Limited</td>
+      <td>Image tall ad</td>
+      <td>Bengali</td>
+      <td>快速到账</td>
+      <td>bKash Limited Google static creative</td>
+      <td>Google Ads Transparency Center static creative for bKash Limited. Non-video preview collected from public transparency page.</td>
+      <td>85</td>
+      <td>2</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR14055693007768780801?region=BD" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR14055693007768780801?region=BD" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR14055693007768780801.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：bKash Limited Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Google</td>
+      <td>CR02676785599263801345</td>
+      <td>Google 未公开</td>
+      <td>bKash Limited</td>
+      <td>bKash Limited</td>
+      <td>Image tall ad</td>
+      <td>Bengali</td>
+      <td>快速到账</td>
+      <td>bKash Limited Google static creative</td>
+      <td>Google Ads Transparency Center static creative for bKash Limited. Non-video preview collected from public transparency page.</td>
+      <td>86</td>
+      <td>2</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR02676785599263801345?region=BD" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR02676785599263801345?region=BD" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR02676785599263801345.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：bKash Limited Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Google</td>
+      <td>CR11202141260569640961</td>
+      <td>Google 未公开</td>
+      <td>bKash Limited</td>
+      <td>bKash Limited</td>
+      <td>Image wide ad</td>
+      <td>Bengali</td>
+      <td>快速到账</td>
+      <td>bKash Limited Google static creative</td>
+      <td>Google Ads Transparency Center static creative for bKash Limited. Non-video preview collected from public transparency page.</td>
+      <td>82</td>
+      <td>2</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR11202141260569640961?region=BD" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR11202141260569640961?region=BD" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR11202141260569640961.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：bKash Limited Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Google</td>
+      <td>CR13517385308949184513</td>
+      <td>Google 未公开</td>
+      <td>bKash Limited</td>
+      <td>bKash Limited</td>
+      <td>Image tall ad</td>
+      <td>Bengali</td>
+      <td>快速到账</td>
+      <td>bKash Limited Google static creative</td>
+      <td>Google Ads Transparency Center static creative for bKash Limited. Non-video preview collected from public transparency page.</td>
+      <td>83</td>
+      <td>2</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR13517385308949184513?region=BD" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR13517385308949184513?region=BD" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR13517385308949184513.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：bKash Limited Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Google</td>
+      <td>CR15169979245733609473</td>
+      <td>Google 未公开</td>
+      <td>bKash Limited</td>
+      <td>bKash Limited</td>
+      <td>Image wide ad</td>
+      <td>Bengali</td>
+      <td>快速到账</td>
+      <td>bKash Limited Google static creative</td>
+      <td>Google Ads Transparency Center static creative for bKash Limited. Non-video preview collected from public transparency page.</td>
+      <td>84</td>
+      <td>2</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR15169979245733609473?region=BD" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR15169979245733609473?region=BD" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR15169979245733609473.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：bKash Limited Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Google</td>
+      <td>CR12358501590871572481</td>
+      <td>Google 未公开</td>
+      <td>bKash Limited</td>
+      <td>bKash Limited</td>
+      <td>Image wide ad</td>
+      <td>Bengali</td>
+      <td>快速到账</td>
+      <td>bKash Limited Google static creative</td>
+      <td>Google Ads Transparency Center static creative for bKash Limited. Non-video preview collected from public transparency page.</td>
+      <td>85</td>
+      <td>2</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR12358501590871572481?region=BD" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR12358501590871572481?region=BD" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR12358501590871572481.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：bKash Limited Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Google</td>
+      <td>CR16224843571776192513</td>
+      <td>Google 未公开</td>
+      <td>bKash Limited</td>
+      <td>bKash Limited</td>
+      <td>Image wide ad</td>
+      <td>Bengali</td>
+      <td>快速到账</td>
+      <td>bKash Limited Google static creative</td>
+      <td>Google Ads Transparency Center static creative for bKash Limited. Non-video preview collected from public transparency page.</td>
+      <td>86</td>
+      <td>2</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR16224843571776192513?region=BD" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR16224843571776192513?region=BD" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR16224843571776192513.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：bKash Limited Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Google</td>
+      <td>CR10757241687324491777</td>
+      <td>Google 未公开</td>
+      <td>bKash Limited</td>
+      <td>bKash Limited</td>
+      <td>Image tall ad</td>
+      <td>Bengali</td>
+      <td>快速到账</td>
+      <td>bKash Limited Google static creative</td>
+      <td>Google Ads Transparency Center static creative for bKash Limited. Non-video preview collected from public transparency page.</td>
+      <td>82</td>
+      <td>2</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR10757241687324491777?region=BD" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR10757241687324491777?region=BD" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR10757241687324491777.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：bKash Limited Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Google</td>
+      <td>CR14098349660879978497</td>
+      <td>Google 未公开</td>
+      <td>bKash Limited</td>
+      <td>bKash Limited</td>
+      <td>Image tall ad</td>
+      <td>Bengali</td>
+      <td>快速到账</td>
+      <td>bKash Limited Google static creative</td>
+      <td>Google Ads Transparency Center static creative for bKash Limited. Non-video preview collected from public transparency page.</td>
+      <td>83</td>
+      <td>2</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR14098349660879978497?region=BD" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR14098349660879978497?region=BD" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR14098349660879978497.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：bKash Limited Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Google</td>
+      <td>CR09817678215064322049</td>
+      <td>Google 未公开</td>
+      <td>bKash Limited</td>
+      <td>bKash Limited</td>
+      <td>Image tall ad</td>
+      <td>Bengali</td>
+      <td>快速到账</td>
+      <td>bKash Limited Google static creative</td>
+      <td>Google Ads Transparency Center static creative for bKash Limited. Non-video preview collected from public transparency page.</td>
+      <td>84</td>
+      <td>2</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR09817678215064322049?region=BD" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR09817678215064322049?region=BD" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR09817678215064322049.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：bKash Limited Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Google</td>
+      <td>CR10476511835900084225</td>
+      <td>Google 未公开</td>
+      <td>bKash Limited</td>
+      <td>bKash Limited</td>
+      <td>Image wide ad</td>
+      <td>Bengali</td>
+      <td>快速到账</td>
+      <td>bKash Limited Google static creative</td>
+      <td>Google Ads Transparency Center static creative for bKash Limited. Non-video preview collected from public transparency page.</td>
+      <td>85</td>
+      <td>2</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR10476511835900084225?region=BD" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR10476511835900084225?region=BD" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR10476511835900084225.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：bKash Limited Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Bangladesh</td>
+      <td>Google</td>
+      <td>CR00475193884549316609</td>
+      <td>Google 未公开</td>
+      <td>bKash Limited</td>
+      <td>bKash Limited</td>
+      <td>Image tall ad</td>
+      <td>Bengali</td>
+      <td>快速到账</td>
+      <td>bKash Limited Google static creative</td>
+      <td>Google Ads Transparency Center static creative for bKash Limited. Non-video preview collected from public transparency page.</td>
+      <td>86</td>
+      <td>2</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR00475193884549316609?region=BD" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR08574827027356450817/creative/CR00475193884549316609?region=BD" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR00475193884549316609.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：bKash Limited Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Google</td>
+      <td>CR03254943525074108417</td>
+      <td>Google 未公开</td>
+      <td>Easyfinance Lda</td>
+      <td>Easyfinance Lda</td>
+      <td>Image wide ad</td>
+      <td>Portuguese</td>
+      <td>快速到账</td>
+      <td>Easyfinance Lda Google static creative</td>
+      <td>Google Ads Transparency Center static creative for Easyfinance Lda. Non-video preview collected from public transparency page.</td>
+      <td>72</td>
+      <td>3</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR01460505346991718401/creative/CR03254943525074108417?region=AO" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR01460505346991718401/creative/CR03254943525074108417?region=AO" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR03254943525074108417.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：e-loan.pt Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Google</td>
+      <td>CR05961600475852701697</td>
+      <td>Google 未公开</td>
+      <td>TALENTO CREDITO AGRO LTDA</td>
+      <td>TALENTO CREDITO AGRO LTDA</td>
+      <td>Image wide ad</td>
+      <td>Portuguese</td>
+      <td>快速到账</td>
+      <td>TALENTO CREDITO AGRO LTDA Google static creative</td>
+      <td>Google Ads Transparency Center static creative for TALENTO CREDITO AGRO LTDA. Non-video preview collected from public transparency page.</td>
+      <td>72</td>
+      <td>2</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR13884801627770060801/creative/CR05961600475852701697?region=AO" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR13884801627770060801/creative/CR05961600475852701697?region=AO" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR05961600475852701697.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：Talento Credito Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Google</td>
+      <td>CR05950807669714452481</td>
+      <td>Google 未公开</td>
+      <td>TALENTO CREDITO AGRO LTDA</td>
+      <td>TALENTO CREDITO AGRO LTDA</td>
+      <td>Image wide ad</td>
+      <td>Portuguese</td>
+      <td>快速到账</td>
+      <td>TALENTO CREDITO AGRO LTDA Google static creative</td>
+      <td>Google Ads Transparency Center static creative for TALENTO CREDITO AGRO LTDA. Non-video preview collected from public transparency page.</td>
+      <td>73</td>
+      <td>2</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR13884801627770060801/creative/CR05950807669714452481?region=AO" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR13884801627770060801/creative/CR05950807669714452481?region=AO" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR05950807669714452481.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：Talento Credito Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Google</td>
+      <td>CR08874932730383564801</td>
+      <td>Google 未公开</td>
+      <td>TALENTO CREDITO AGRO LTDA</td>
+      <td>TALENTO CREDITO AGRO LTDA</td>
+      <td>Image wide ad</td>
+      <td>Portuguese</td>
+      <td>快速到账</td>
+      <td>TALENTO CREDITO AGRO LTDA Google static creative</td>
+      <td>Google Ads Transparency Center static creative for TALENTO CREDITO AGRO LTDA. Non-video preview collected from public transparency page.</td>
+      <td>74</td>
+      <td>2</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR13884801627770060801/creative/CR08874932730383564801?region=AO" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR13884801627770060801/creative/CR08874932730383564801?region=AO" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR08874932730383564801.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：Talento Credito Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Google</td>
+      <td>CR06334446586818461697</td>
+      <td>Google 未公开</td>
+      <td>TALENTO CREDITO AGRO LTDA</td>
+      <td>TALENTO CREDITO AGRO LTDA</td>
+      <td>Image tall ad</td>
+      <td>Portuguese</td>
+      <td>快速到账</td>
+      <td>TALENTO CREDITO AGRO LTDA Google static creative</td>
+      <td>Google Ads Transparency Center static creative for TALENTO CREDITO AGRO LTDA. Non-video preview collected from public transparency page.</td>
+      <td>75</td>
+      <td>2</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR13884801627770060801/creative/CR06334446586818461697?region=AO" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR13884801627770060801/creative/CR06334446586818461697?region=AO" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR06334446586818461697.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：Talento Credito Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Google</td>
+      <td>CR14687470645332148225</td>
+      <td>Google 未公开</td>
+      <td>IDEALISTA Crédito</td>
+      <td>IDEALISTA, INTERMEDIÁRIO DE CRÉDITO, UNIPESSOAL LDA</td>
+      <td>Image wide ad</td>
+      <td>Portuguese</td>
+      <td>快速到账</td>
+      <td>IDEALISTA Crédito Google static creative</td>
+      <td>Google Ads Transparency Center static creative for IDEALISTA Crédito. Non-video preview collected from public transparency page.</td>
+      <td>72</td>
+      <td>3</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR06544865573044486145/creative/CR14687470645332148225?region=AO" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR06544865573044486145/creative/CR14687470645332148225?region=AO" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR14687470645332148225.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：Idealista Crédito Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Google</td>
+      <td>CR07082753584839786497</td>
+      <td>Google 未公开</td>
+      <td>IDEALISTA Crédito</td>
+      <td>IDEALISTA, INTERMEDIÁRIO DE CRÉDITO, UNIPESSOAL LDA</td>
+      <td>Image wide ad</td>
+      <td>Portuguese</td>
+      <td>快速到账</td>
+      <td>IDEALISTA Crédito Google static creative</td>
+      <td>Google Ads Transparency Center static creative for IDEALISTA Crédito. Non-video preview collected from public transparency page.</td>
+      <td>73</td>
+      <td>3</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR06544865573044486145/creative/CR07082753584839786497?region=AO" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR06544865573044486145/creative/CR07082753584839786497?region=AO" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR07082753584839786497.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：Idealista Crédito Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Google</td>
+      <td>CR07227989123724738561</td>
+      <td>Google 未公开</td>
+      <td>IDEALISTA Crédito</td>
+      <td>IDEALISTA, INTERMEDIÁRIO DE CRÉDITO, UNIPESSOAL LDA</td>
+      <td>Image wide ad</td>
+      <td>Portuguese</td>
+      <td>快速到账</td>
+      <td>IDEALISTA Crédito Google static creative</td>
+      <td>Google Ads Transparency Center static creative for IDEALISTA Crédito. Non-video preview collected from public transparency page.</td>
+      <td>74</td>
+      <td>3</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR06544865573044486145/creative/CR07227989123724738561?region=AO" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR06544865573044486145/creative/CR07227989123724738561?region=AO" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR07227989123724738561.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：Idealista Crédito Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Google</td>
+      <td>CR12895146879649579009</td>
+      <td>Google 未公开</td>
+      <td>IDEALISTA Crédito</td>
+      <td>IDEALISTA, INTERMEDIÁRIO DE CRÉDITO, UNIPESSOAL LDA</td>
+      <td>Image wide ad</td>
+      <td>Portuguese</td>
+      <td>快速到账</td>
+      <td>IDEALISTA Crédito Google static creative</td>
+      <td>Google Ads Transparency Center static creative for IDEALISTA Crédito. Non-video preview collected from public transparency page.</td>
+      <td>75</td>
+      <td>3</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR06544865573044486145/creative/CR12895146879649579009?region=AO" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR06544865573044486145/creative/CR12895146879649579009?region=AO" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR12895146879649579009.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：Idealista Crédito Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Google</td>
+      <td>CR15618934049790230529</td>
+      <td>Google 未公开</td>
+      <td>IDEALISTA Crédito</td>
+      <td>IDEALISTA, INTERMEDIÁRIO DE CRÉDITO, UNIPESSOAL LDA</td>
+      <td>Image wide ad</td>
+      <td>Portuguese</td>
+      <td>快速到账</td>
+      <td>IDEALISTA Crédito Google static creative</td>
+      <td>Google Ads Transparency Center static creative for IDEALISTA Crédito. Non-video preview collected from public transparency page.</td>
+      <td>76</td>
+      <td>3</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR06544865573044486145/creative/CR15618934049790230529?region=AO" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR06544865573044486145/creative/CR15618934049790230529?region=AO" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR15618934049790230529.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：Idealista Crédito Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Google</td>
+      <td>CR08809346982045810689</td>
+      <td>Google 未公开</td>
+      <td>Lead Supply</td>
+      <td>Lead Supply ApS</td>
+      <td>Image wide ad</td>
+      <td>Portuguese</td>
+      <td>快速到账</td>
+      <td>Lead Supply Google static creative</td>
+      <td>Google Ads Transparency Center static creative for Lead Supply. Non-video preview collected from public transparency page.</td>
+      <td>72</td>
+      <td>3</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR00230283364588847105/creative/CR08809346982045810689?region=AO" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR00230283364588847105/creative/CR08809346982045810689?region=AO" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR08809346982045810689.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：myloan24.com Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Google</td>
+      <td>CR10451067135378587649</td>
+      <td>Google 未公开</td>
+      <td>Luso Crédito</td>
+      <td>HUB, Consultores de Informática, Lda</td>
+      <td>Image wide ad</td>
+      <td>Portuguese</td>
+      <td>快速到账</td>
+      <td>Luso Crédito Google static creative</td>
+      <td>Google Ads Transparency Center static creative for Luso Crédito. Non-video preview collected from public transparency page.</td>
+      <td>72</td>
+      <td>3</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR11496746673858674689/creative/CR10451067135378587649?region=AO" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR11496746673858674689/creative/CR10451067135378587649?region=AO" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR10451067135378587649.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：lusocredito.pt Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Google</td>
+      <td>CR01972235040859357185</td>
+      <td>Google 未公开</td>
+      <td>MiCrédito</td>
+      <td>3A MIDIA DIGITAL LTDA</td>
+      <td>Image ad</td>
+      <td>Portuguese</td>
+      <td>快速到账</td>
+      <td>MiCrédito Google static creative</td>
+      <td>Google Ads Transparency Center static creative for MiCrédito. Non-video preview collected from public transparency page.</td>
+      <td>72</td>
+      <td>3</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR03474656064614432769/creative/CR01972235040859357185?region=AO" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR03474656064614432769/creative/CR01972235040859357185?region=AO" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR01972235040859357185.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：micredito.com.br Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Google</td>
+      <td>CR09433780431691448321</td>
+      <td>Google 未公开</td>
+      <td>MiCrédito</td>
+      <td>3A MIDIA DIGITAL LTDA</td>
+      <td>Image ad</td>
+      <td>Portuguese</td>
+      <td>快速到账</td>
+      <td>MiCrédito Google static creative</td>
+      <td>Google Ads Transparency Center static creative for MiCrédito. Non-video preview collected from public transparency page.</td>
+      <td>73</td>
+      <td>3</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR03474656064614432769/creative/CR09433780431691448321?region=AO" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR03474656064614432769/creative/CR09433780431691448321?region=AO" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR09433780431691448321.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：micredito.com.br Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Google</td>
+      <td>CR10106588639157813249</td>
+      <td>Google 未公开</td>
+      <td>MiCrédito</td>
+      <td>3A MIDIA DIGITAL LTDA</td>
+      <td>Image ad</td>
+      <td>Portuguese</td>
+      <td>快速到账</td>
+      <td>MiCrédito Google static creative</td>
+      <td>Google Ads Transparency Center static creative for MiCrédito. Non-video preview collected from public transparency page.</td>
+      <td>74</td>
+      <td>3</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR03474656064614432769/creative/CR10106588639157813249?region=AO" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR03474656064614432769/creative/CR10106588639157813249?region=AO" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR10106588639157813249.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：micredito.com.br Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Google</td>
+      <td>CR05983129763928080385</td>
+      <td>Google 未公开</td>
+      <td>MiCrédito</td>
+      <td>3A MIDIA DIGITAL LTDA</td>
+      <td>Image ad</td>
+      <td>Portuguese</td>
+      <td>快速到账</td>
+      <td>MiCrédito Google static creative</td>
+      <td>Google Ads Transparency Center static creative for MiCrédito. Non-video preview collected from public transparency page.</td>
+      <td>75</td>
+      <td>3</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR03474656064614432769/creative/CR05983129763928080385?region=AO" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR03474656064614432769/creative/CR05983129763928080385?region=AO" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR05983129763928080385.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：micredito.com.br Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Google</td>
+      <td>CR06450403831862788097</td>
+      <td>Google 未公开</td>
+      <td>Neo Crédito</td>
+      <td>NEO INSTITUICAO DE PAGAMENTO LTDA</td>
+      <td>Image wide ad</td>
+      <td>Portuguese</td>
+      <td>快速到账</td>
+      <td>Neo Crédito Google static creative</td>
+      <td>Google Ads Transparency Center static creative for Neo Crédito. Non-video preview collected from public transparency page.</td>
+      <td>72</td>
+      <td>3</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR04832310843381121025/creative/CR06450403831862788097?region=AO" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR04832310843381121025/creative/CR06450403831862788097?region=AO" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR06450403831862788097.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：neocredito.com.br Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Google</td>
+      <td>CR17354071425438187521</td>
+      <td>Google 未公开</td>
+      <td>Seu Crédito Agora</td>
+      <td>CENARIO CAPITAL LTDA</td>
+      <td>Image ad</td>
+      <td>Portuguese</td>
+      <td>快速到账</td>
+      <td>Seu Crédito Agora Google static creative</td>
+      <td>Google Ads Transparency Center static creative for Seu Crédito Agora. Non-video preview collected from public transparency page.</td>
+      <td>72</td>
+      <td>3</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR07407551690506764289/creative/CR17354071425438187521?region=AO" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR07407551690506764289/creative/CR17354071425438187521?region=AO" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR17354071425438187521.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：seucreditoagora.com.br Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Google</td>
+      <td>CR01088696848585064449</td>
+      <td>Google 未公开</td>
+      <td>Seu Crédito Agora</td>
+      <td>CENARIO CAPITAL LTDA</td>
+      <td>Image wide ad</td>
+      <td>Portuguese</td>
+      <td>快速到账</td>
+      <td>Seu Crédito Agora Google static creative</td>
+      <td>Google Ads Transparency Center static creative for Seu Crédito Agora. Non-video preview collected from public transparency page.</td>
+      <td>73</td>
+      <td>3</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR07407551690506764289/creative/CR01088696848585064449?region=AO" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR07407551690506764289/creative/CR01088696848585064449?region=AO" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR01088696848585064449.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：seucreditoagora.com.br Google static creatives。已排除带视频标记的卡片。</td>
+    </tr>
+<tr>
+      <td>Angola</td>
+      <td>Google</td>
+      <td>CR16329872994090352641</td>
+      <td>Google 未公开</td>
+      <td>Crédito Agrícola</td>
+      <td>CAIXA CENTRAL - CAIXA CENTRAL DE CRÉDITO AGRÍCOLA MÚTUO, CRL</td>
+      <td>Image ad</td>
+      <td>Portuguese</td>
+      <td>快速到账</td>
+      <td>Crédito Agrícola Google static creative</td>
+      <td>Google Ads Transparency Center static creative for Crédito Agrícola. Non-video preview collected from public transparency page.</td>
+      <td>72</td>
+      <td>3</td>
+      <td>可测试</td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR12612938339704635393/creative/CR16329872994090352641?region=AO" target="_blank" rel="noreferrer">真实广告</a></td>
+      <td><a href="https://adstransparency.google.com/advertiser/AR12612938339704635393/creative/CR16329872994090352641?region=AO" target="_blank" rel="noreferrer">落地页</a></td>
+      <td><a href="ad_screenshots/google_CR16329872994090352641.png" target="_blank" rel="noreferrer">真实截图</a></td>
+      <td>真实 Google Ads Transparency Center 图文条目；采集来源：creditoagricola.pt Google static creatives。已排除带视频标记的卡片。</td>
+    </tr></tbody>
+      </table>
+    </section>
+    <div id="adPreviewModal" class="preview-backdrop" hidden>
+      <section class="preview-dialog" role="dialog" aria-modal="true" aria-labelledby="previewTitle">
+        <div id="previewContent"></div>
+      </section>
+    </div>
+    <script>
+      const tableRows = Array.from(document.querySelectorAll("tbody tr"));
+      const fields = ["country", "platform", "adId", "started", "brand", "advertiser", "type", "language", "angle", "headline", "copy", "score", "risk", "level", "adLibrary", "landing", "screenshot", "notes"];
+      const data = tableRows.map((row, rowIndex) => {
+        const cells = Array.from(row.children);
+        const item = fields.reduce((item, field, index) => {
+          const cell = cells[index];
+          item[field] = field === "adLibrary" || field === "landing" || field === "screenshot"
+            ? { label: cell?.innerText.trim() || "", href: cell?.querySelector("a")?.href || "" }
+            : cell?.innerText.trim() || "";
+          return item;
+        }, {});
+        item.uid = rowIndex;
+        return item;
+      }).map((item) => ({
+        ...item,
+        scoreValue: Number(item.score) || 0,
+        riskValue: Number(item.risk) || 0,
+      }));
+
+      const state = {
+        search: "",
+        country: "All",
+        platform: "All",
+        angle: "All",
+        level: "All",
+        sort: "score-desc",
+        quick: "all",
+      };
+
+      const controls = {
+        search: document.querySelector("#searchBox"),
+        country: document.querySelector("#countryFilter"),
+        platform: document.querySelector("#platformFilter"),
+        angle: document.querySelector("#angleFilter"),
+        level: document.querySelector("#levelFilter"),
+        sort: document.querySelector("#sortFilter"),
+        cards: document.querySelector("#cardsGrid"),
+        count: document.querySelector("#resultCount"),
+        summary: document.querySelector("#summaryGrid"),
+        modal: document.querySelector("#adPreviewModal"),
+        preview: document.querySelector("#previewContent"),
+      };
+
+      function uniqueValues(key) {
+        return Array.from(new Set(data.map((item) => item[key]).filter(Boolean))).sort((a, b) => a.localeCompare(b));
+      }
+
+      function fillSelect(select, values) {
+        values.forEach((value) => {
+          const option = document.createElement("option");
+          option.value = value;
+          option.textContent = value;
+          select.appendChild(option);
+        });
+      }
+
+      function topValue(items, key) {
+        const tally = items.reduce((acc, item) => {
+          acc[item[key]] = (acc[item[key]] || 0) + 1;
+          return acc;
+        }, {});
+        const top = Object.entries(tally).sort((a, b) => b[1] - a[1])[0];
+        return top ? `${top[0]} · ${top[1]}条` : "暂无";
+      }
+
+      function cardClass(level) {
+        if (level.includes("优先")) return "priority";
+        if (level.includes("测试")) return "test";
+        return "review";
+      }
+
+      function riskClass(risk) {
+        if (risk <= 2) return "risk-low";
+        if (risk === 3) return "risk-mid";
+        return "risk-high";
+      }
+
+      function escapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, (char) => ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          "\"": "&quot;",
+          "'": "&#039;",
+        })[char]);
+      }
+
+      function platformClass(platform, type) {
+        const value = `${platform} ${type}`.toLowerCase();
+        if (value.includes("instagram")) return "instagram";
+        if (value.includes("youtube") || value.includes("video")) return "youtube";
+        if (value.includes("google")) return "google";
+        if (value.includes("search")) return "search";
+        return "social";
+      }
+
+      function initials(brand) {
+        return brand
+          .split(/\s+/)
+          .filter(Boolean)
+          .slice(0, 2)
+          .map((part) => part[0])
+          .join("")
+          .toUpperCase();
+      }
+
+      function actionLabel(item) {
+        return item.adId ? "打开真实广告" : "打开广告库入口";
+      }
+
+      function sourceHint(item) {
+        if (item.adId) {
+          const sourceName = item.platform === "Google" ? "Google Ads Transparency Center" : "Meta 广告资料库";
+          return `当前记录来自 ${sourceName} 真实条目，编号：${item.adId}。右侧为公开透明度页面截取的真实卡片截图。`;
+        }
+        return "当前记录没有抓到真实广告 ID，因此只显示缺失提示。";
+      }
+
+      function renderRealAdStage(item) {
+        if (item.screenshot.href) {
+          return `<img class="real-ad-shot" src="${item.screenshot.href}" alt="${escapeHtml(item.brand)} 真实广告截图" />`;
+        }
+        return `<div class="missing-shot">这条记录暂时没有真实截图。请打开广告库入口查看，或稍后补抓公开广告卡片。</div>`;
+      }
+
+      function productName(item) {
+        return item.country === "Angola" ? "DinheiroFácil - Crédito Online" : "TakaCashLoan - Easy and safe";
+      }
+
+      function productCopy(item) {
+        if (item.country === "Angola") {
+          const headline = item.angle === "高额度"
+            ? "Crédito online até ao limite aprovado, sem complicação"
+            : item.angle === "生活应急"
+              ? "Dinheiro para urgências, pedido 100% online"
+              : item.angle === "快速到账"
+                ? "Peça online e receba resposta rápida"
+                : "Crédito online simples para o dia-a-dia";
+          const body = item.angle === "高额度"
+            ? "Com DinheiroFácil, faça a simulação, confirme as condições e escolha o valor que cabe no seu orçamento."
+            : item.angle === "生活应急"
+              ? "Imprevistos não esperam. Solicite pelo telemóvel, acompanhe o estado do pedido e veja todos os custos antes de aceitar."
+              : item.angle === "快速到账"
+                ? "Preencha em poucos passos, envie os dados necessários e receba a resposta diretamente no telemóvel."
+                : "Uma experiência clara para pedir crédito online, com passos simples e informação de reembolso visível.";
+          return {
+            product: productName(item),
+            headline,
+            body,
+            cta: "CTA：Solicitar agora",
+            caution: "合规提醒：避免承诺“必过/秒到”，需展示费用、期限和还款责任。",
+          };
+        }
+
+        const headline = item.angle === "高额度"
+          ? "Borrow what fits your need, repay with clarity"
+          : item.angle === "生活应急"
+            ? "Quick cash support for urgent moments"
+            : item.angle === "快速到账"
+              ? "Apply in minutes, get a fast decision"
+              : "Easy and safe cash loan from your phone";
+        const body = item.angle === "高额度"
+          ? "TakaCashLoan helps users check available limits, review repayment terms, and apply with a simple mobile flow."
+          : item.angle === "生活应急"
+            ? "For bills, travel, health or month-end pressure, TakaCashLoan keeps the application steps short and transparent."
+            : item.angle === "快速到账"
+              ? "Start with your phone number, complete the basic information, and follow your loan status in the app."
+              : "A clean mobile loan experience designed around simple steps, clear fees, and safe repayment reminders.";
+        return {
+          product: productName(item),
+          headline,
+          body,
+          cta: "CTA: Apply safely",
+          caution: "合规提醒：不要写“guaranteed approval / lowest rate”等绝对承诺，需补充费用和期限说明。",
+        };
+      }
+
+      function renderProductCopy(item) {
+        const copy = productCopy(item);
+        return `
+          <section class="product-copy">
+            <span>针对产品名的文案</span>
+            <strong>${escapeHtml(copy.product)}｜${escapeHtml(copy.headline)}</strong>
+            <p>${escapeHtml(copy.body)}</p>
+            <p>${escapeHtml(copy.cta)}</p>
+            <em>${escapeHtml(copy.caution)}</em>
+          </section>
+        `;
+      }
+
+      function openPreview(uid) {
+        const item = data.find((entry) => String(entry.uid) === String(uid));
+        if (!item) return;
+        controls.preview.innerHTML = `
+          <div class="preview-shell">
+            <aside class="preview-meta">
+              <span class="pill country">${escapeHtml(item.country)}</span>
+              <h2 id="previewTitle">${escapeHtml(item.brand)}</h2>
+              <p>${escapeHtml(item.advertiser)}</p>
+              <div class="meta">
+                <span class="pill">${escapeHtml(item.platform)}</span>
+                <span class="pill">${escapeHtml(item.type)}</span>
+                <span class="pill">${escapeHtml(item.language)}</span>
+                <span class="pill">${escapeHtml(item.angle)}</span>
+                <span class="pill ${riskClass(item.riskValue)}">风险 ${item.riskValue}</span>
+                <span class="pill">${escapeHtml(item.level)}</span>
+              </div>
+              <div class="preview-note">${escapeHtml(sourceHint(item))}<br>截图仅用于内部调研复核；如需确认最新状态，请点击“打开真实广告”回到 Meta 广告资料库核验。</div>
+              <div class="preview-actions">
+                ${item.adLibrary.href ? `<a class="solid" href="${item.adLibrary.href}" target="_blank" rel="noreferrer">${escapeHtml(actionLabel(item))}</a>` : ""}
+                ${item.landing.href ? `<a href="${item.landing.href}" target="_blank" rel="noreferrer">打开落地页</a>` : ""}
+                <button type="button" data-close-preview>关闭</button>
+              </div>
+            </aside>
+            <div class="ad-stage">${renderRealAdStage(item)}</div>
+          </div>
+        `;
+        controls.modal.hidden = false;
+      }
+
+      function closePreview() {
+        controls.modal.hidden = true;
+        controls.preview.innerHTML = "";
+      }
+
+      function filteredData() {
+        const keyword = state.search.toLowerCase();
+        return data
+          .filter((item) => state.country === "All" || item.country === state.country)
+          .filter((item) => state.platform === "All" || item.platform === state.platform)
+          .filter((item) => state.angle === "All" || item.angle === state.angle)
+          .filter((item) => state.level === "All" || item.level === state.level)
+          .filter((item) => {
+            if (state.quick === "priority") return item.level.includes("优先");
+            if (state.quick === "lowRisk") return item.riskValue <= 2;
+            if (state.quick === "topScore") return item.scoreValue >= 75;
+            return true;
+          })
+          .filter((item) => !keyword || [item.country, item.platform, item.brand, item.advertiser, item.type, item.language, item.angle, item.headline, item.copy, item.level].join(" ").toLowerCase().includes(keyword))
+          .sort((a, b) => {
+            if (state.sort === "risk-asc") return a.riskValue - b.riskValue || b.scoreValue - a.scoreValue;
+            if (state.sort === "brand-asc") return a.brand.localeCompare(b.brand);
+            if (state.sort === "country-asc") return a.country.localeCompare(b.country) || b.scoreValue - a.scoreValue;
+            return b.scoreValue - a.scoreValue;
+          });
+      }
+
+      function renderSummary(items) {
+        const avgScore = items.length ? Math.round(items.reduce((sum, item) => sum + item.scoreValue, 0) / items.length) : 0;
+        const lowRisk = items.filter((item) => item.riskValue <= 2).length;
+        controls.summary.innerHTML = [
+          ["当前结果", `${items.length}条`, `覆盖 ${new Set(items.map((item) => item.brand)).size} 个品牌`],
+          ["平均分", avgScore, `低风险 ${lowRisk} 条`],
+          ["主流方向", topValue(items, "angle"), `主平台 ${topValue(items, "platform")}`],
+        ].map(([label, value, desc]) => `
+          <article class="panel summary-card">
+            <span>${escapeHtml(label)}</span>
+            <strong>${escapeHtml(value)}</strong>
+            <em>${escapeHtml(desc)}</em>
+          </article>
+        `).join("");
+      }
+
+      function renderCards() {
+        const items = filteredData();
+        controls.count.textContent = `显示 ${items.length} / ${data.length} 条`;
+        renderSummary(items);
+        controls.cards.innerHTML = items.map((item) => `
+          <article class="panel creative-card ${cardClass(item.level)}">
+            <div class="card-top">
+              <div class="brand-block">
+                <h3 class="brand">${escapeHtml(item.brand)}</h3>
+                <p class="advertiser">${escapeHtml(item.advertiser)}</p>
+              </div>
+              <div class="score" title="预估参考分">${item.scoreValue}</div>
+            </div>
+            <div class="meta">
+              <span class="pill country">${escapeHtml(item.country)}</span>
+              <span class="pill">${escapeHtml(item.platform)}</span>
+              ${item.adId ? `<span class="pill">ID ${escapeHtml(item.adId)}</span>` : ""}
+              ${item.started ? `<span class="pill">${escapeHtml(item.started)}</span>` : ""}
+              <span class="pill">${escapeHtml(item.type)}</span>
+              <span class="pill">${escapeHtml(item.language)}</span>
+              <span class="pill ${riskClass(item.riskValue)}">风险 ${item.riskValue}</span>
+              <span class="pill">${escapeHtml(item.level)}</span>
+            </div>
+            <p class="angle">${escapeHtml(item.angle)}</p>
+            <h4 class="headline">${escapeHtml(item.headline)}</h4>
+            <p class="copy">${escapeHtml(item.copy)}</p>
+            ${renderProductCopy(item)}
+            <div class="card-actions">
+              <button type="button" class="primary-action" data-preview="${item.uid}">查看样式</button>
+              ${item.adLibrary.href ? `<a href="${item.adLibrary.href}" target="_blank" rel="noreferrer">${escapeHtml(actionLabel(item))}</a>` : ""}
+              ${item.landing.href ? `<a href="${item.landing.href}" target="_blank" rel="noreferrer">落地页</a>` : ""}
+            </div>
+          </article>
+        `).join("");
+      }
+
+      fillSelect(controls.country, uniqueValues("country"));
+      fillSelect(controls.platform, uniqueValues("platform"));
+      fillSelect(controls.angle, uniqueValues("angle"));
+      fillSelect(controls.level, uniqueValues("level"));
+      controls.search.addEventListener("input", (event) => { state.search = event.target.value; renderCards(); });
+      controls.country.addEventListener("change", (event) => { state.country = event.target.value; renderCards(); });
+      controls.platform.addEventListener("change", (event) => { state.platform = event.target.value; renderCards(); });
+      controls.angle.addEventListener("change", (event) => { state.angle = event.target.value; renderCards(); });
+      controls.level.addEventListener("change", (event) => { state.level = event.target.value; renderCards(); });
+      controls.sort.addEventListener("change", (event) => { state.sort = event.target.value; renderCards(); });
+      document.querySelectorAll("[data-quick]").forEach((button) => {
+        button.addEventListener("click", () => {
+          state.quick = button.dataset.quick;
+          document.querySelectorAll("[data-quick]").forEach((item) => item.classList.toggle("active", item === button));
+          renderCards();
+        });
+      });
+      controls.cards.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-preview]");
+        if (button) openPreview(button.dataset.preview);
+      });
+      controls.modal.addEventListener("click", (event) => {
+        if (event.target === controls.modal || event.target.closest("[data-close-preview]")) closePreview();
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !controls.modal.hidden) closePreview();
+      });
+      renderCards();
+    </script>
+  </main>
+</body>
+</html>
